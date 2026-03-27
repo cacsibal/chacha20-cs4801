@@ -71,7 +71,7 @@ def yield_chacha_xor_stream(key, iv, position=0, num_rounds=20):
       ctx[13] = (ctx[13] + 1) & 0xffffffff
 
 
-def chacha20_encrypt(data, key, iv=None, position=0):
+def vchacha_encrypt(data, key, iv=None, position=0, num_rounds=20):
   """Encrypt (or decrypt) with the ChaCha20 cipher."""
   if not isinstance(data, bytes):
     raise TypeError
@@ -87,12 +87,12 @@ def chacha20_encrypt(data, key, iv=None, position=0):
       raise ValueError('Key too long.')
 
   return bytes(a ^ b for a, b in
-      zip(data, yield_chacha_xor_stream(key, iv, position, num_rounds=20)))
+      zip(data, yield_chacha_xor_stream(key, iv, position, num_rounds=num_rounds)))
 
 
-assert chacha20_encrypt(
+assert vchacha_encrypt(
     b'Hello World', b'chacha20!') == b'\xeb\xe78\xad\xd5\xab\x18R\xe2O~'
-assert chacha20_encrypt(
+assert vchacha_encrypt(
     b'\xeb\xe78\xad\xd5\xab\x18R\xe2O~', b'chacha20!') == b'Hello World'
 
 # ---
@@ -108,7 +108,7 @@ def run_tests():
       (uh('ef3fdfd6c61578fbf5cf35bd3dd33b8009631634d21e42ac33960bd138e50d32111e4caf237ee53ca8ad6426194a88545ddc497a0b466e7d6bbdb004'), uh('0000000000000000000000000000000000000000000000000000000000000000'), uh('0100000000000000')),
       (uh('f798a189f195e66982105ffb640bb7757f579da31602fc93ec01ac56f85ac3c134a4547b733b46413042c9440049176905d3be59ea1c53f15916155c2be8241a38008b9a26bc35941e2444177c8ade6689de95264986d95889fb60e84629c9bd9a5acb1cc118be563eb9b3a4a472f82e09a7e778492b562ef7130e88dfe031c79db9d4f7c7a899151b9a475032b63fc385245fe054e3dd5a97a5f576fe064025d3ce042c566ab2c507b138db853e3d6959660996546cc9c4a6eafdc777c040d70eaf46f76dad3979e5c5360c3317166a1c894c94a371876a94df7628fe4eaaf2ccb27d5aaae0ad7ad0f9d4b6ad3b54098746d4524d38407a6deb'), uh('000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f'), uh('0001020304050607')),
       )):
-    assert chacha20_encrypt(b'\0' * len(ciphertext), key, iv) == ciphertext
+    assert vchacha_encrypt(b'\0' * len(ciphertext), key, iv) == ciphertext
     print('Test %d OK.' % i)
 
 
