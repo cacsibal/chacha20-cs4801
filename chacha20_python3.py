@@ -12,10 +12,14 @@ Based on http://cr.yp.to/chacha.html
 More info about ChaCha20: https://en.wikipedia.org/wiki/Salsa20
 """
 
+""" CS4801 Group D2: VChaCha (Variable ChaCha)
+Group D2 decided to modify ChaCha20 by adding a parameter to the algorithm that specifies the number of rounds desired.
+"""
+
 import struct
 
 
-def yield_chacha20_xor_stream(key, iv, position=0):
+def yield_chacha_xor_stream(key, iv, position=0, num_rounds=20):
   """Generate the xor stream with the ChaCha20 cipher."""
   if not isinstance(position, int):
     raise TypeError
@@ -50,7 +54,7 @@ def yield_chacha20_xor_stream(key, iv, position=0):
   ctx[14 : 16] = struct.unpack('<LL', iv)
   while 1:
     x = list(ctx)
-    for i in range(10):
+    for i in range(num_rounds // 2):
       quarter_round(x, 0, 4,  8, 12)
       quarter_round(x, 1, 5,  9, 13)
       quarter_round(x, 2, 6, 10, 14)
@@ -83,7 +87,7 @@ def chacha20_encrypt(data, key, iv=None, position=0):
       raise ValueError('Key too long.')
 
   return bytes(a ^ b for a, b in
-      zip(data, yield_chacha20_xor_stream(key, iv, position)))
+      zip(data, yield_chacha_xor_stream(key, iv, position, num_rounds=20)))
 
 
 assert chacha20_encrypt(
