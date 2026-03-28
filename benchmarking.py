@@ -1,7 +1,15 @@
-import matplotlib
 import time 
 import os 
-from chacha20_python3 import yield_chacha_xor_stream
+
+cache_dir = os.path.join(os.getcwd(), '.benchmark_cache')
+os.makedirs(cache_dir, exist_ok=True)
+os.environ.setdefault('MPLCONFIGDIR', cache_dir)
+os.environ.setdefault('XDG_CACHE_HOME', cache_dir)
+
+import matplotlib
+from chacha20_python3 import vchacha_encrypt
+
+matplotlib.use('Agg')
 
 def benchmark(): # run tests for various numbers of rounds and plaintext length, save results to CSV, run visualization
     num_rounds_list = [8, 12, 16, 20]
@@ -44,7 +52,6 @@ def visualize_results(results):
     plt.grid(True)
     plt.tight_layout()
     plt.savefig('benchmark_plot.png')
-    plt.show()
 
 def run_test(num_rounds, key, plaintext): # time the encryption for given parameters
     """
@@ -54,11 +61,8 @@ def run_test(num_rounds, key, plaintext): # time the encryption for given parame
     iv = os.urandom(8)
     start = time.perf_counter()
     
-    # Generate keystream and encrypt
-    keystream = b''.join(
-        bytes([b]) for b in yield_chacha_xor_stream(key, iv, 0, num_rounds)
-    )
-    ciphertext = bytes([p ^ k for p, k in zip(plaintext, keystream[:len(plaintext)])])
+    # Encrypt only the plaintext length instead of consuming the infinite keystream generator.
+    ciphertext = vchacha_encrypt(plaintext, key, iv, 0, num_rounds)
     end = time.perf_counter()
     elapsed = end - start
     print(f"Rounds: {num_rounds}, Key len: {len(key)}, Plaintext len: {len(plaintext)}, Time: {elapsed:.6f}s")
@@ -67,4 +71,3 @@ def run_test(num_rounds, key, plaintext): # time the encryption for given parame
 if __name__ == '__main__':
     
     benchmark()
-
