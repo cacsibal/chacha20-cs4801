@@ -1,12 +1,52 @@
-# import matplotlib
+import matplotlib
 import time 
 import os 
 from chacha20_python3 import yield_chacha_xor_stream
 
-def benchmark():
-    print('todo: compare encryption times against varying num_rounds, key lengths, plaintext lengths, etc')
+def benchmark(): # run tests for various numbers of rounds and plaintext length, save results to CSV, run visualization
+    num_rounds_list = [8, 12, 16, 20]
+    plaintext_lengths = [64, 256, 1024, 4096, 16384]
+    key = os.urandom(32)
+    results = []
+    for num_rounds in num_rounds_list:
+        for pt_len in plaintext_lengths:
+            plaintext = os.urandom(pt_len)
+            elapsed = run_test(num_rounds, key, plaintext)
+            results.append({
+                'num_rounds': num_rounds,
+                'plaintext_length': pt_len,
+                'time': elapsed
+            })
 
-def run_test(num_rounds, key, plaintext): 
+    # Save results to file
+    with open('benchmark_results.csv', 'w') as f:
+        f.write('num_rounds,plaintext_length,time\n')
+        for r in results:
+            f.write(f"{r['num_rounds']},{r['plaintext_length']},{r['time']}\n")
+    # Visualize results
+
+    visualize_results(results)
+
+def visualize_results(results):
+    import matplotlib.pyplot as plt
+    num_rounds_set = sorted(set(r['num_rounds'] for r in results))
+    plt.figure(figsize=(10,6))
+    for num_rounds in num_rounds_set:
+        pts = [r for r in results if r['num_rounds'] == num_rounds]
+        pts = sorted(pts, key=lambda x: x['plaintext_length'])
+        x = [p['plaintext_length'] for p in pts]
+        y = [p['time'] for p in pts]
+        plt.plot(x, y, marker='o', label=f'{num_rounds} rounds')
+    plt.xlabel('Plaintext Length (bytes)')
+    plt.ylabel('Encryption Time (seconds)')
+    plt.title('VChaCha Encryption Time vs Plaintext Length')
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.savefig('benchmark_plot.png')
+    plt.show()
+
+def run_test(num_rounds, key, plaintext): # time the encryption for given parameters
     """
     Encrypt the plaintext using VChaCha with the specified number of rounds and key
     Logs and returns the time for encryption 
@@ -25,5 +65,6 @@ def run_test(num_rounds, key, plaintext):
     return elapsed
 
 if __name__ == '__main__':
+    
     benchmark()
 
