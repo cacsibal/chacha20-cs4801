@@ -26,12 +26,10 @@ def benchmark(): # run tests for various numbers of rounds and plaintext length,
                 'time': elapsed
             })
 
-    # Save results to file
     with open('benchmark_results.csv', 'w') as f:
         f.write('num_rounds,plaintext_length,time\n')
         for r in results:
             f.write(f"{r['num_rounds']},{r['plaintext_length']},{r['time']}\n")
-    # Visualize results
 
     visualize_results(results)
 

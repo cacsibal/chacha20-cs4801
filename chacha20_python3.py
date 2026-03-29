@@ -13,7 +13,9 @@ More info about ChaCha20: https://en.wikipedia.org/wiki/Salsa20
 """
 
 """ CS4801 Group D2: VChaCha (Variable ChaCha)
-Group D2 decided to modify ChaCha20 by adding a parameter to the algorithm that specifies the number of rounds desired.
+Group D2 decided to modify ChaCha20 by adding a parameter to the algorithm that specifies the number of rounds desired in order to generate the keystream.
+In use, this can save computation time by trading off security for less sensitive information.
+This can also allow us to test how encryption speed can act as a function of the number of encryption rounds specified.
 """
 
 import struct
