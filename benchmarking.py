@@ -7,7 +7,7 @@ os.environ.setdefault('MPLCONFIGDIR', cache_dir)
 os.environ.setdefault('XDG_CACHE_HOME', cache_dir)
 
 import matplotlib
-from chacha20_python3 import vchacha_encrypt
+from vchacha import vchacha_encrypt
 
 matplotlib.use('Agg')
 
