@@ -22,6 +22,10 @@ import struct
 
 
 def yield_chacha_xor_stream(key, iv, position=0, num_rounds=20):
+  if num_rounds < 8:
+    print(num_rounds, 'is too small. defaulting to num_rounds=8')
+    num_rounds = 8
+
   """Generate the xor stream with the ChaCha20 cipher."""
   if not isinstance(position, int):
     raise TypeError
