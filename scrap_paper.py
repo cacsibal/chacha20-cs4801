@@ -1,8 +1,8 @@
 from vchacha import yield_chacha_xor_stream
 
-num_bytes = 2 ** 10
-k1 = b'a' * 32
-chunk_size = 8
+num_bytes = 2 ** 11 # sample size
+k1 = b'ab' * 16
+chunk_size = 16
 
 for num_rounds in range(8, 32 + 1, 2):
     ks = yield_chacha_xor_stream(k1, b'\0' * 8, num_rounds=num_rounds)
@@ -19,7 +19,7 @@ for num_rounds in range(8, 32 + 1, 2):
         else:
             chunk_dict[chunk] = 1
 
-    if(len(chunk_dict) != num_bytes / chunk_size):
+    if len(chunk_dict) != num_bytes / chunk_size:
         print(f'num_rounds: {num_rounds} pct_zeroes: {pct_zeroes}')
         print('{')
         for chunk, count in chunk_dict.items():
